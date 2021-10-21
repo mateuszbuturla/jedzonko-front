@@ -1,26 +1,31 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { FC, Suspense, lazy } from 'react';
+import { Provider } from 'react-redux';
+import { ChakraProvider } from '@chakra-ui/react';
+import { createBrowserHistory } from 'history';
+import { Route, Router, Switch, Redirect } from 'react-router-dom';
+import { store } from './config/redux/store';
+import { theme } from './config/chakra/theme';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+export const history = createBrowserHistory({ basename: '/' });
+
+const ErrorPage = lazy(() => import('./pages/ErrorPage'));
+const Login = lazy(() => import('./pages/Login'));
+
+const App: FC = () => (
+  <Provider store={store}>
+    <ChakraProvider theme={theme} resetCSS>
+      <Router history={history}>
+        <Suspense fallback={<div>Loading...</div>}>
+          <Switch>
+            <Route exact path="/" component={Login} />
+            <Route path="/login" component={Login} />
+            <Route path="/error" component={ErrorPage} />
+            <Route render={() => <Redirect to="/error" />} />
+          </Switch>
+        </Suspense>
+      </Router>
+    </ChakraProvider>
+  </Provider>
+);
 
 export default App;
